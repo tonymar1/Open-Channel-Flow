@@ -1,0 +1,76 @@
+def pipe(diameter, depth=None):
+  """Calculates wetted perimeter and hydraulic radius in a pipe 
+  given diameter and depth."""
+
+  if depth is None:
+    depth = diameter 
+
+  radius = diameter/2
+  theta = 2 * np.arccos((radius-depth)/radius)
+  A = ((diameter**2) * (theta - np.sin(theta)))/ 8 
+  WP = (theta * diameter) / 2
+  HyrdroRadius = A/WP
+  return WP, HyrdroRadius
+
+
+def rectangle_channel(width, depth):
+  """Calculates wetted perimeter and hydraulic radius in a rectangle channel
+   given width and depth."""
+
+  WP = 2 * depth + width
+  HyrdroRadius = (depth * width) / (width + 2 * depth)
+  
+  return WP, HyrdroRadius
+
+
+def trapezoid_channel(base, theta_degrees, depth):
+  """Calculates wetted perimeter and hydraulic radius in a trapezoid channel 
+  given base, theta, and depth."""
+
+  theta_radians = np.radians(theta_degrees)
+  WP = base + 2 * (depth/np.sin(theta_radians))
+  HyrdroRadius = (base * depth * np.sin(theta_radians) + depth**2 * np.cos(theta_radians)) / (base * np.sin(theta_radians) + 2 * depth)
+  return WP, HyrdroRadius
+
+
+def triangle_channel(theta_degrees, depth):
+  """Calculates wetted perimeter and hydraulic radius in a triangle channel 
+  given theta and depth."""
+
+  theta_radians = np.radians(theta_degrees)
+  WP = (2 * depth)/np.sin(theta_radians)
+  HyrdroRadius = (depth * np.cos(theta_radians)) / 2
+  return WP, HyrdroRadius
+
+def velocity_and_flow(wetted_perimeter, hydraulic_radius, slope, roughness_n, units="US"):
+  """Calculates flow and velocity of water in a pipe or open channel 
+  for either US units or metric givent wetted perimeter, hydraulic radius, 
+  slope, n-value, and unit factor."""
+
+  if units == "US":
+    c = 1.49  
+    WP = wetted_perimeter/12
+    HyrdroRadius = hydraulic_radius/12
+  else:
+    c = 1.00
+    WP = wetted_perimeter/100
+    HyrdroRadius = hydraulic_radius/100
+
+  n = roughness_n
+  S = slope
+
+
+  A = HyrdroRadius * WP
+  v = c/n * HyrdroRadius **(2/3) * S**0.5
+  Q = v * A
+  return v, Q
+
+def critical_depth_rectangle(discharge, width, gravity='US'):
+  """Calculates the critical depth for a rectangular channel 
+  given discharge, width, and gravity"""
+
+  if gravity == 'US':
+    crit_depth = ((discharge**2)/ ((width ** 2) * 32)) ** (1/3)
+  else: 
+    crit_depth = ((discharge**2)/ ((width ** 2) * 9.81)) ** (1/3)
+  return crit_depth
