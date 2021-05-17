@@ -1,0 +1,4 @@
+results = pipe(40, 30)
+wettedperim = results[0]
+hydroradius = results[1]
+print(velocity_and_flow(wettedperim, hydroradius, 0.001, 0.8))
